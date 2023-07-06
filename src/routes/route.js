@@ -1,5 +1,5 @@
 import express from 'express'
-import { createUser } from '../controllers/userController.js'
+import { createUser, logIn } from '../controllers/userController.js'
 
 const router = express.Router()
 
@@ -10,5 +10,6 @@ router.get('/test', (req, res) => {
 
 // USER ROUTES
 router.post('/register', createUser)
+router.post('/login', logIn)
 
 export default router

@@ -1,4 +1,5 @@
 import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
 import userModel from "../models/userModel.js"
 import { uploadFile } from "../aws/aws.js"
 import { isValidEmail, isValidField, isValidPass, isValidPhone } from "../util/validator/validator.js"
@@ -58,6 +59,45 @@ export const createUser = async (req, res) => {
 
     } catch (error) {
         console.log(error)
+        return res.status(500).send({ status: false, message: error.message })
+    }
+}
+
+
+export const logIn = async (req, res) => {
+    try {
+        const { SECRET_KEY } = process.env
+        const { email, password } = req.body
+
+        if (!email) {
+            return res.status(400).send({ status: false, message: "Email Id is missing" })
+        }
+        if (!password) {
+            return res.status(400).send({ status: false, message: "Email Id is missing" })
+        }
+
+        const saveData = await userModel.findOne({ email: email })
+        console.log(saveData);
+        if (!saveData) {
+            return res.status(401).send({ status: false, message: "Credentials are not matched" })
+        }
+ 
+        bcrypt.compare(password, saveData.password, (err, result) => {
+            console.log(result)
+            if (result === false) {
+                return res.status(401).send({ status: false, message: "Credentials are not matched" })
+            }
+        })
+
+        const userId = saveData._id
+        jwt.sign({ id: userId.toString() }, SECRET_KEY, { expiresIn: '1h' }, (err, token) => {
+            console.log("sign");
+            return res.status(200).send({ status: true, message: "User login successfull", data: { userId, token } })
+        })
+
+
+    } catch (error) {
+        console.log("catch");
         return res.status(500).send({ status: false, message: error.message })
     }
 }
