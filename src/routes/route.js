@@ -9,6 +9,6 @@ router.get('/test', (req, res) => {
 
 
 // USER ROUTES
-router.post('/users', createUser)
+router.post('/register', createUser)
 
 export default router
