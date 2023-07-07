@@ -1,6 +1,8 @@
 import aws from "aws-sdk"
+// const { ACCESS_KEY_ID, SECRET_ACCESS_KEY, REGION } = process.env
+// console.log(ACCESS_KEY_ID);
 // aws.config.update({
-//     accessKeyId: ACCESS_KEY_ID.process.env,
+//     accessKeyId: ACCESS_KEY_ID,
 //     secretAccessKey: SECRET_ACCESS_KEY,
 //     region: REGION
 // })
