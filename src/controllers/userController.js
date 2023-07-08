@@ -7,6 +7,10 @@ import { isValidEmail, isValidField, isValidPass, isValidPhone } from "../util/v
 // REGISTER USER
 export const createUser = async (req, res) => {
     try {
+
+        if (!req.body) {
+            return res.status(400).send({ status: false, message: "Missing" })
+        }
         const { fname, lname, email, phone, password, address } = req.body
 
         // Add URL in profileImage
@@ -16,11 +20,6 @@ export const createUser = async (req, res) => {
         }
         else {
             return res.status(400).send({ status: false, msg: "Profile Image not found" })
-        }
-
-
-        if (!req.body) {
-            return res.status(400).send({ status: false, message: "Missing" })
         }
 
         if (!isValidField(fname && lname && email && phone && password && address.shipping.street && address.shipping.city && address.shipping.pincode && address.billing.street && address.billing.city && address.billing.pincode)) {

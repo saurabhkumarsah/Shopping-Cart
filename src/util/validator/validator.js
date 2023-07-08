@@ -25,3 +25,20 @@ export const isValidPass = (value) => {
     if (value.length < 8 && value.length > 15) return false
     return true
 }
+
+export const isValidSize = (value) => {
+    let arr = ["S", "XS", "M", "X", "L", "XXL", "XL"]
+    let flag = true;
+    if (value.length < 1) return false
+    for (let i = 0; i < value.length; i++) {
+        if(arr.indexOf(value[i]) == -1) {
+            flag = false
+            break;
+        }
+    }
+    if (flag) {
+        return true
+    } else {
+        return false
+    }
+} 
