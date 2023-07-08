@@ -1,12 +1,13 @@
+import moment from 'moment'
 import { uploadFile } from "../aws/aws.js"
 import productModel from "../models/productModel.js"
-import { isValidField, isValidSize } from "../util/validator/validator.js"
+import { isValidField, isValidObjId, isValidSize } from "../util/validator/validator.js"
 
 // CREATE PRODUCT
 export const createProduct = async (req, res) => {
     try {
         delete req.body.deletedAt
-        if (!req.body) {
+        if (Object.keys(req.body).length < 1) {
             return res.status(400).send({ status: false, message: "Data missing" })
         }
         // Add URL in profileImage
@@ -29,7 +30,7 @@ export const createProduct = async (req, res) => {
         if (isUniquetitle) {
             return res.status(400).send({ status: false, message: "Title is already exist" })
         }
-        
+
         if (!isValidSize(availableSizes)) {
             return res.status(400).send({ status: false, message: "Size's units are not valid" })
         }
@@ -55,6 +56,12 @@ export const getProducts = async (req, res) => {
 export const getProduct = async (req, res) => {
     try {
 
+        const productId = req.params.productId
+        if (!isValidObjId(productId)) return res.status(404).send({ status: false, message: "Invalid Product ID" })
+        const data = await productModel.findOne({ _id: productId })
+        if (!data) return res.status(404).send({ status: false, message: "Not found" })
+        return res.status(200).send({ status: true, message: "Success", data: data })
+
     } catch (error) {
         return res.status(500).send({ status: false, message: error.message })
     }
@@ -63,6 +70,34 @@ export const getProduct = async (req, res) => {
 // UPDATE PRODUCT
 export const updateProduct = async (req, res) => {
     try {
+        const { title, availableSizes } = req.body
+        const productId = req.params.productId
+        if (!isValidObjId(productId)) return res.status(400).send({ status: false, message: "Invalid Product ID" })
+
+        if (Object.keys(req.body).length < 1) return res.status(400).send({ status: false, message: "Missing Data" })
+
+        const files = req.files
+        if (files && files.length > 0) {
+            if (files && files.length > 0) {
+                req.body.productImage = await uploadFile(files[0])
+            }
+        }
+        if (title) {
+            const isUniquetitle = await productModel.findOne({ title: title })
+            if (isUniquetitle) {
+                return res.status(400).send({ status: false, message: "Title is already exist" })
+            }
+        }
+        if (availableSizes) {
+            if (!isValidSize(availableSizes)) {
+                return res.status(400).send({ status: false, message: "Size's units are not valid" })
+            }
+        }
+
+        const data = await productModel.findOneAndUpdate({ _id: productId, isDeleted: false }, req.body, { new: true })
+
+        if (!data) return res.status(404).send({ status: false, message: "Product not found" })
+        return res.status(200).send({ status: true, message: "Success", data: data })
 
     } catch (error) {
         return res.status(500).send({ status: false, message: error.message })
@@ -72,20 +107,19 @@ export const updateProduct = async (req, res) => {
 // DELETE PRODUCT
 export const deleteProduct = async (req, res) => {
     try {
+        const productId = req.params.productId
+        if (!isValidObjId(productId)) return res.status(400).send({ status: false, message: "Invalid Product ID" })
+
+        const data = await productModel.findOneAndUpdate({ _id: productId, isDeleted: false }, { isDeleted: true, deletedAt: moment().format() }, { new: true })
+
+        if (!data) return res.status(404).send({ status: false, message: "Product not found" })
+        return res.status(200).send({ status: true, message: "Success", data: data })
 
     } catch (error) {
         return res.status(500).send({ status: false, message: error.message })
     }
 }
 
-
-// Products API(No authentication required)
-// POST / products
-// Create a product document from request body.
-// Upload product image to S3 bucket and save image public url in document.
-// Response format
-// On success - Return HTTP status 201. Also return the product document.The response should be a JSON object like this
-// On error - Return a suitable error message with a valid HTTP status code.The response should be a JSON object like this
 
 // GET / products
 // Returns all products in the collection that arent deleted.
@@ -100,21 +134,3 @@ export const deleteProduct = async (req, res) => {
 // Response format
 // On success - Return HTTP status 200. Also return the product documents.The response should be a JSON object like this
 // On error - Return a suitable error message with a valid HTTP status code.The response should be a JSON object like this
-
-// GET / products /: productId
-// Returns product details by product id
-// Response format
-// On success - Return HTTP status 200. Also return the product documents.The response should be a JSON object like this
-// On error - Return a suitable error message with a valid HTTP status code.The response should be a JSON object like this
-
-// PUT / products /: productId
-// Updates a product by changing at least one or all fields
-// Check if the productId exists(must have isDeleted false and is present in collection).If it doesn't, return an HTTP status 404 with a response body like this
-// Response format
-// On success - Return HTTP status 200. Also return the updated product document.The response should be a JSON object like this
-// On error - Return a suitable error message with a valid HTTP status code.The response should be a JSON object like this
-
-// DELETE / products /: productId
-// Deletes a product by product id if it's not already deleted
-// Response format
-// On success - Return HTTP status 200. The response should be a JSON object like this

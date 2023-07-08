@@ -1,3 +1,8 @@
+import mongoose from "mongoose"
+
+export const isValidObjId = (value) => {
+    return mongoose.isValidObjectId(value)
+}
 export const isValidField = (value) => {
     if (typeof value == 'undefined' || typeof value == null) return false
     if (typeof value == 'string' && value.trim().length == 0) return false
@@ -41,4 +46,4 @@ export const isValidSize = (value) => {
     } else {
         return false
     }
-} 
+}
