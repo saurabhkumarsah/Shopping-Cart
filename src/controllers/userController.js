@@ -2,11 +2,15 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import userModel from "../models/userModel.js"
 import { uploadFile } from "../aws/aws.js"
-import { isValidEmail, isValidField, isValidPass, isValidPhone } from "../util/validator/validator.js"
+import { isValidEmail, isValidField, isValidObjId, isValidPass, isValidPhone } from "../util/validator/validator.js"
 
 // REGISTER USER
 export const createUser = async (req, res) => {
     try {
+
+        if (!req.body) {
+            return res.status(400).send({ status: false, message: "Missing" })
+        }
         const { fname, lname, email, phone, password, address } = req.body
 
         // Add URL in profileImage
@@ -16,11 +20,6 @@ export const createUser = async (req, res) => {
         }
         else {
             return res.status(400).send({ status: false, msg: "Profile Image not found" })
-        }
-
-
-        if (!req.body) {
-            return res.status(400).send({ status: false, message: "Missing" })
         }
 
         if (!isValidField(fname && lname && email && phone && password && address.shipping.street && address.shipping.city && address.shipping.pincode && address.billing.street && address.billing.city && address.billing.pincode)) {
@@ -105,7 +104,8 @@ export const logIn = async (req, res) => {
 export const getProfile = async (req, res) => {
     try {
         const userId = req.params.userId
-        const data = await userModel.findById(req.params.userId)
+        if (!isValidObjId(userId)) return res.status(400).send({ status: false, message: "Invalid Product ID" })
+        const data = await userModel.findById(userId)
 
         // if (req.headers.id != userId) return res.status(401).send({ status: false, message: "User Id did not match" })
 
@@ -120,6 +120,7 @@ export const getProfile = async (req, res) => {
 export const updateProfile = async (req, res) => {
     try {
         const userId = req.params.userId
+        if (!isValidObjId(productId)) return res.status(400).send({ status: false, message: "Invalid Product ID" })
         if (req.headers.id != userId) return res.status(403).send({ status: false, message: "User has not allowed" })
 
         const { email, phone, password } = req.body
