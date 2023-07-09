@@ -46,6 +46,32 @@ export const createProduct = async (req, res) => {
 // GET PRODUCTS USING FILTERS
 export const getProducts = async (req, res) => {
     try {
+        const { size, name, priceLessThan, priceGreaterThan } = req.query
+        let findData = new Object();
+        findData.isDeleted = false
+
+        if (name) {
+            findData.title = name
+        }
+        if (size) {
+            findData.availableSizes = { $elemMatch: { $eq: size } }
+        }
+        if (priceLessThan) {
+            findData.price = { $lte: priceLessThan }
+        }
+        if (priceGreaterThan) {
+            findData.price = { $gte: priceGreaterThan }
+        }
+        if (priceGreaterThan && priceLessThan) {
+            findData.price = { $gte: priceGreaterThan, $lte: priceLessThan }
+        }
+        // console.log(findData)
+
+        const data = await productModel.find(findData)
+
+        if (data.length === 0) return res.status(404).send({ status: false, message: "Not found" })
+
+        return res.status(200).send({ status: true, message: "Success", data: data })
 
     } catch (error) {
         return res.status(500).send({ status: false, message: error.message })
@@ -55,7 +81,6 @@ export const getProducts = async (req, res) => {
 // GET PRODUCT BY PRODUCT ID
 export const getProduct = async (req, res) => {
     try {
-
         const productId = req.params.productId
         if (!isValidObjId(productId)) return res.status(404).send({ status: false, message: "Invalid Product ID" })
         const data = await productModel.findOne({ _id: productId })
@@ -119,18 +144,3 @@ export const deleteProduct = async (req, res) => {
         return res.status(500).send({ status: false, message: error.message })
     }
 }
-
-
-// GET / products
-// Returns all products in the collection that arent deleted.
-// Filters
-// Size(The key for this filter will be 'size')
-// Product name(The key for this filter will be 'name'). You should return all the products with name containing the substring recieved in this filter
-// Price: greater than or less than a specific value.The keys are 'priceGreaterThan' and 'priceLessThan'.
-//     NOTE: For price filter request could contain both or any one of the keys.For example the query in the request could look like { priceGreaterThan: 500, priceLessThan: 2000 } or just { priceLessThan: 1000 } )
-
-// Sort
-// Sorted by product price in ascending or descending.The key value pair will look like { priceSort: 1 } or { priceSort: -1 } eg / products ? size = XL & name=Nit % 20grit
-// Response format
-// On success - Return HTTP status 200. Also return the product documents.The response should be a JSON object like this
-// On error - Return a suitable error message with a valid HTTP status code.The response should be a JSON object like this
