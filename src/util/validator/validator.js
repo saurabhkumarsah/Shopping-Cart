@@ -9,6 +9,11 @@ export const isValidField = (value) => {
     return true
 }
 
+export const isValidTypeNumber = (value) => {
+    if (typeof value != 'number') return false;
+    return true;
+}
+
 export const trimSpace = (value) => {
     if (typeof value == 'string') {
         return value.trim()
@@ -36,7 +41,7 @@ export const isValidSize = (value) => {
     let flag = true;
     if (value.length < 1) return false
     for (let i = 0; i < value.length; i++) {
-        if(arr.indexOf(value[i]) == -1) {
+        if (arr.indexOf(value[i]) == -1) {
             flag = false
             break;
         }
