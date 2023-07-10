@@ -1,4 +1,5 @@
 import cartModel from "../models/cartModel.js"
+import productModel from "../models/productModel.js"
 import { isValidObjId, isValidTypeNumber } from "../util/validator/validator.js"
 
 
@@ -42,6 +43,9 @@ export const createCart = async (req, res) => {
         const isPresentCart = await cartModel.findOne({ userId: userId })
         if (isPresentCart) {
             // UPDATE CART AND ADD ON ITEMS
+
+            // { $push: { scores: { $each: [90, 92, 85] } } }
+
             let items = isPresentCart.items
             for (let i = 0; i < items.length; i++) {
                 let proData = await productModel.findOne({ _id: items[i].productId })
@@ -49,16 +53,23 @@ export const createCart = async (req, res) => {
                 req.body.totalItems += items[i].quantity
                 req.body.totalPrice += proData.price * items[i].quantity
             }
-            const saveData = cartModel.findOneAndUpdate({ userId: userId }, req.body)
+
+            const updateReq = {
+                totalItems: req.body.totalItems,
+                totalPrice: req.body.totalPrice
+            }
+            console.log(updateReq)
+
+            const saveData = await cartModel.findOneAndUpdate({ userId: userId }, updateReq, {$push: { items: { $each: [req.body.items] } }}, { new: true })
             return res.status(201).send({ status: true, message: "Success", data: saveData })
+
         } else {
             // CREATE CART
-            const saveData = cartModel.create(req.body)
+            const saveData = await cartModel.create(req.body)
             return res.status(201).send({ status: true, message: "Success", data: saveData })
         }
 
     } catch (error) {
-        console.log(error)
         return res.status(500).send({ status: false, message: error.message })
     }
 }
