@@ -82,7 +82,7 @@ export const getProducts = async (req, res) => {
 export const getProduct = async (req, res) => {
     try {
         const productId = req.params.productId
-        if (!isValidObjId(productId)) return res.status(404).send({ status: false, message: "Invalid Product ID" })
+        if (!isValidObjId(productId)) return res.status(400).send({ status: false, message: "Invalid Product ID" })
         const data = await productModel.findOne({ _id: productId })
         if (!data) return res.status(404).send({ status: false, message: "Not found" })
         return res.status(200).send({ status: true, message: "Success", data: data })

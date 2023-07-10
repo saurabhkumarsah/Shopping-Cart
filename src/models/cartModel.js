@@ -9,18 +9,20 @@ const cartSchema = new Schema(
             require: true,
             unique: true
         },
-        items: [{
-            productId: {
-                type: Schema.Types.ObjectId,
-                ref: "Product",
-                require: true
-            },
-            quantity: {
-                type: Number,
-                require: true,
-                min: 1
+        items: [
+            {
+                productId: {
+                    type: Schema.Types.ObjectId,
+                    ref: "Product",
+                    require: true
+                },
+                quantity: {
+                    type: Number,
+                    require: true,
+                    min: 1
+                }
             }
-        }],
+        ],
         totalPrice: {
             type: Number,
             require: true   //number, mandatory, comment: "Holds total price of all the items in the cart" 
