@@ -44,8 +44,6 @@ export const createCart = async (req, res) => {
         if (isPresentCart) {
             // UPDATE CART AND ADD ON ITEMS
 
-            // { $push: { scores: { $each: [90, 92, 85] } } }
-
             let items = isPresentCart.items
             for (let i = 0; i < items.length; i++) {
                 let proData = await productModel.findOne({ _id: items[i].productId })
