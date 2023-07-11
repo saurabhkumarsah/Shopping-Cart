@@ -7,7 +7,7 @@ export const createCart = async (req, res) => {
     try {
 
         const userId = req.params.userId
-        if (!isValidObjId(userId)) return res.status(400).send({ status: false, message: "Invalid Product ID" })
+        if (!isValidObjId(userId)) return res.status(400).send({ status: false, message: "Invalid User ID" })
         if (req.headers.id != userId) return res.status(403).send({ status: false, message: "User has not allowed" })
 
         if (!req.body) return res.status(400).send({ status: false, message: "Missing Data" })
@@ -17,7 +17,7 @@ export const createCart = async (req, res) => {
         // ITERATE ITEMS OF REQUEST OF BODY
         let totalPrice = 0, totalItems = 0;
         for (let i = 0; i < items.length; i++) {
-            if (!items[i].hasOwnProperty('productId' && 'quantity')) {
+            if (!(items[i].hasOwnProperty('productId') && items[i].hasOwnProperty('quantity'))) {
                 return res.status(400).send({ status: false, message: "Missing Product and Quantity" })
             }
 
@@ -53,12 +53,12 @@ export const createCart = async (req, res) => {
             }
 
             const updateReq = {
+                $push: { items: { $each: req.body.items } },
                 totalItems: req.body.totalItems,
                 totalPrice: req.body.totalPrice
             }
-            console.log(updateReq)
 
-            const saveData = await cartModel.findOneAndUpdate({ userId: userId }, updateReq, {$push: { items: { $each: [req.body.items] } }}, { new: true })
+            const saveData = await cartModel.findOneAndUpdate({ userId: userId }, updateReq, { new: true })
             return res.status(201).send({ status: true, message: "Success", data: saveData })
 
         } else {
