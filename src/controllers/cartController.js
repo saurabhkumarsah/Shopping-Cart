@@ -15,7 +15,7 @@ export const createCart = async (req, res) => {
         if (items.length === 0) return res.status(400).send({ status: false, message: "Missing Items" })
 
         // ITERATE ITEMS OF REQUEST OF BODY
-        let totalPrice = 0, totalItems = 0;
+        let totalPrice = 0, totalItems = items.length;
         for (let i = 0; i < items.length; i++) {
             if (!(items[i].hasOwnProperty('productId') && items[i].hasOwnProperty('quantity'))) {
                 return res.status(400).send({ status: false, message: "Missing Product and Quantity" })
@@ -32,7 +32,7 @@ export const createCart = async (req, res) => {
             if (quant < 1) return res.status(400).send({ status: false, message: "Quantity must be greater than one(1)." })
 
             totalPrice += proData.price * quant;
-            totalItems += quant;
+            // totalItems += quant;
         }
         // ASSIGNING VALUE OF TOTAL ITEMS AND PRICES
         req.body.userId = userId
@@ -45,10 +45,10 @@ export const createCart = async (req, res) => {
             // UPDATE CART AND ADD ON ITEMS
 
             let items = isPresentCart.items
+            req.body.totalItems += items[i].length;
             for (let i = 0; i < items.length; i++) {
                 let proData = await productModel.findOne({ _id: items[i].productId })
 
-                req.body.totalItems += items[i].quantity
                 req.body.totalPrice += proData.price * items[i].quantity
             }
 
@@ -108,7 +108,7 @@ export const updateCart = async (req, res) => {
                 const data = await cartModel.findOneAndUpdate({ userId: userId }, { $pull: { items: productId }, $inc: { totalPrice: -price, totalItems: -quant } }, { new: true })
                 return res.send({ status: true, message: "Success", data: data })
             } else {
-                const data = await cartModel.findOneAndUpdate({ userId: userId }, { $pull: { items: productId }, $push: { productId: productId, quantity: qunat - 1 }, $inc: { totalPrice: -productData.price, totalItems: -1 } }, { new: true })
+                const data = await cartModel.findOneAndUpdate({ userId: userId }, { $pull: { items: productId }, $push: { productId: productId, quantity: quant - 1 }, $inc: { totalPrice: -productData.price, totalItems: -1 } }, { new: true })
                 return res.send({ status: true, message: "Success", data: data })
             }
         } else {
