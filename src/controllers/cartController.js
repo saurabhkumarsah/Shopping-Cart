@@ -142,7 +142,7 @@ export const getCart = async (req, res) => {
         if (!isValidObjId(userId)) return res.status(400).send({ status: false, message: "Invalid User ID" })
         if (req.headers.id != userId) return res.status(403).send({ status: false, message: "User has not allowed" })
 
-        const isPresentCart = await cartModel.findOne({ userId: userId })//.populate(productId)
+        const isPresentCart = await cartModel.findOne({ userId: userId }).populate('items.productId')
         if (!isPresentCart) return res.status(400).send({ status: false, message: "Cart is not exist of the user" })
 
         return res.status(200).send({ status: true, message: "Success", data: isPresentCart })
