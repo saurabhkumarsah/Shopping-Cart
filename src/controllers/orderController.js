@@ -9,15 +9,20 @@ export const createOrder = async (req, res) => {
         if (req.headers.id != userId) return res.status(403).send({ status: false, message: "User has not allowed" })
 
         if (!req.body) return res.status(400).send({ status: false, message: "Missing Data" })
+        req.body.userId = userId
+        const { status } = req.body
+        const orderData = await orderModel.findOne({ userId: userId })
 
-        const { totalQuantity, status } = req.body
+        if (orderData) return res.status(400).send({ status: false, message: "Order is already exits" })
 
+        let quantReq = 0;
         for (let i = 0; i < req.body.items.length; i++) {
             let quant = req.body.items[i].quantity
-            req.body.totalQuantity += quant;
+            quantReq += quant;
         }
+        req.body.totalQuantity = quantReq
 
-        if (!totalQuantity) return res.status(400).send({ status: false, message: "Missing Total Quantity" })
+        // if (!totalQuantity) return res.status(400).send({ status: false, message: "Missing Total Quantity" })
         if (!isValidStatus(status)) return res.status(400).send({ status: false, message: "Invalid Status" })
 
 
@@ -44,7 +49,7 @@ export const updateOrder = async (req, res) => {
         if (!req.body) return res.status(400).send({ status: false, message: "Missing Data" })
 
         const { orderId, status } = req.body
-        if (!isValidStatus(status)) return res.status(400).send({ status: false, message: "Invalid Status" }) 
+        if (!isValidStatus(status)) return res.status(400).send({ status: false, message: "Invalid Status" })
         if (!isValidObjId(orderId)) return res.status(400).send({ status: false, message: "Invalid Order ID" })
         const orderData = await orderModel.findOne({ userId: userId })
         if (!orderData) return res.status(400).send({ status: false, message: "Order is not exist of the User" })
