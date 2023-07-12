@@ -60,10 +60,4 @@ export const updateOrder = async (req, res) => {
     } catch (error) {
         return res.status(500).send({ status: false, message: error.message })
     }
-} 
-
-        // Updates an order status
-        // Make sure the user exist
-        // Get order id in request body
-        // Make sure the order belongs to the user
-        // Make sure that only a cancellable order could be canceled.Else send an appropriate error message and response.
+}
