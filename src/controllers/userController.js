@@ -88,7 +88,7 @@ export const logIn = async (req, res) => {
                 return res.status(401).send({ status: false, message: "Credentials are not matched" })
             } else {
                 const userId = saveData._id
-                const token = jwt.sign({ id: userId.toString() }, SECRET_KEY, { expiresIn: '1h' })
+                const token = jwt.sign({ id: userId.toString() }, SECRET_KEY, { expiresIn: '24h' })
 
                 return res.status(200).send({ status: true, message: "User login successfull", data: { userId, token } })
             }
@@ -104,7 +104,7 @@ export const logIn = async (req, res) => {
 export const getProfile = async (req, res) => {
     try {
         const userId = req.params.userId
-        if (!isValidObjId(userId)) return res.status(400).send({ status: false, message: "Invalid Product ID" })
+        if (!isValidObjId(userId)) return res.status(400).send({ status: false, message: "Invalid User ID" })
         const data = await userModel.findById(userId)
 
         // if (req.headers.id != userId) return res.status(401).send({ status: false, message: "User Id did not match" })
@@ -120,7 +120,7 @@ export const getProfile = async (req, res) => {
 export const updateProfile = async (req, res) => {
     try {
         const userId = req.params.userId
-        if (!isValidObjId(productId)) return res.status(400).send({ status: false, message: "Invalid Product ID" })
+        if (!isValidObjId(userId)) return res.status(400).send({ status: false, message: "Invalid User ID" })
         if (req.headers.id != userId) return res.status(403).send({ status: false, message: "User has not allowed" })
 
         const { email, phone, password } = req.body
