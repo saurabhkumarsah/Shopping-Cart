@@ -52,3 +52,11 @@ export const isValidSize = (value) => {
         return false
     }
 }
+
+export const isValidStatus = (str) => {
+    if (str == "pending" || str == "completed" || str == "cancelled") {
+        return true
+    } else {
+        return false
+    }
+}
