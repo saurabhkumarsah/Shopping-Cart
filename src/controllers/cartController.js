@@ -88,7 +88,7 @@ export const updateCart = async (req, res) => {
         let productData = await productModel.findOne({ _id: productId, isDeleted: false })
         let cartData = await cartModel.findOne({ _id: cartId })
         if (!cartData) return res.status(404).send({ status: false, message: "Cart not exist" })
-        if (cartData.userId != userId) return res.status(400).send({ status: false, message: "Cart is not of the user"})
+        if (cartData.userId != userId) return res.status(400).send({ status: false, message: "Cart is not of the user" })
 
         // CART HAS PRODUCT OR NOT
         let flag = false;
@@ -111,7 +111,6 @@ export const updateCart = async (req, res) => {
             }
         }
 
-
         let price = productData.price * quant
         if (removeProduct === 0) {
             const data = await cartModel.findOneAndUpdate({ userId: userId }, { $pull: { items: { productId: productId } }, $inc: { totalPrice: -price, totalItems: -quant } }, { new: true })
@@ -133,7 +132,6 @@ export const updateCart = async (req, res) => {
         return res.status(500).send({ status: false, message: error.message })
     }
 }
-
 
 // FETCH CART DETAILS
 export const getCart = async (req, res) => {
@@ -171,9 +169,6 @@ export const deleteCart = async (req, res) => {
         return res.status(500).send({ status: false, message: error.message })
     }
 }
-
-
-
 
 
 /**
